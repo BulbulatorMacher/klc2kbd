@@ -40,6 +40,13 @@ struct LayoutLine
 };
 LayoutLine readLayoutLine(const std::string &str);
 
+struct Ligature
+{
+    int virtualKey;
+    ShiftState shiftState;
+    std::vector<uint16_t> chars;
+};
+Ligature readLigature(const std::string &str);
 extern const std::vector<std::string> Sections;
 bool isSection(const std::string &keyword);
 

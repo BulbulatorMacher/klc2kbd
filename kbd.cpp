@@ -70,7 +70,7 @@ std::vector<uint8_t> Config::generateKbd() const
 
     const int nStateKeys = (flags & SHIFTLOCKUSED) ? 3 : 4;
     KbdDataHeader << genWORD(nStateKeys) << genWORD(shiftStateKeys.size() - 1);
-    KbdDataHeader << genWORD(deadKeys.size()) << genWORD(0); // todo LIG_KEYS
+    KbdDataHeader << genWORD(deadKeys.size()) << genWORD(ligatures.size());
 
     // States
     KbdDataHeader << genWORD(KbdDataHeaderSize + KbdData.size());
@@ -142,8 +142,24 @@ std::vector<uint8_t> Config::generateKbd() const
         KbdData << genBYTE(codepage.code(dkt.result));
     }
 
-    // LigKeys, CapsBits
-    KbdDataHeader << genWORD(0) << genWORD(0);
+    // LigKeys
+    KbdDataHeader << genWORD(KbdDataHeaderSize + KbdData.size());
+    for (auto lig : ligatures) {
+        if (lig.chars.size() < 2) {
+            throw std::runtime_error("invalid ligature");
+        }
+        KbdData << genBYTE(codepage.code(lig.chars[0]))
+                << genBYTE(lig.vkey)
+                << genBYTE((int)lig.shiftState)
+                << genBYTE(0) << genBYTE(lig.chars.size() - 1);
+        for (size_t i = 1; i < lig.chars.size(); ++i) {
+            KbdData << genBYTE(codepage.code(lig.chars[i])) << genBYTE(0);
+        }
+    }
+    KbdData << genBYTE(0) << genBYTE(0);
+
+    // CapsBits
+    KbdDataHeader << genWORD(KbdDataHeaderSize + KbdData.size());
 
     HeaderBlock << genBYTE('D') << genBYTE('S');
     HeaderBlock << genDWORD(localeId) << genWORD(version);

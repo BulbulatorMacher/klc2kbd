@@ -47,6 +47,12 @@ namespace kbd
         uint16_t result;
     };
 
+    struct Ligature {
+        uint8_t vkey;
+        ShiftState shiftState;
+        std::vector<uint16_t> chars;
+    };
+
     class ShiftStateKeys {
     public:
         ShiftStateKeys(const Codepage &codepage);
@@ -87,6 +93,7 @@ namespace kbd
 
         std::vector<DeadKey> deadKeys;
         std::vector<DeadKeyTrans> deadKeyTrans;
+        std::vector<Ligature> ligatures;
 
         std::vector<uint8_t> generateKbd() const;
     };

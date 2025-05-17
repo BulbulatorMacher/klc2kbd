@@ -156,3 +156,34 @@ string klc::stripQuotes(const string &text)
         res = res.substr(0, res.size() - 1);
     return res;
 }
+
+Ligature klc::readLigature(const string &str)
+{
+    istringstream iss(str);
+    string s;
+    unsigned int i;
+
+    Ligature res;
+
+    iss >> s;
+    res.virtualKey = virtualKeyIdx(s);
+
+    iss >> i;
+    if (i & 0x04) {
+        i |= 0x02; // ALTGR is 0x06 but in ligature value 0x04 is used
+    }
+    res.shiftState = (ShiftState)i;
+
+    while (true) {
+        if (!(iss >> s) || s.empty() || s.find("//") == 0) {
+            break;
+        }
+        auto c = readUnicode(s);
+        if (c.undefined || c.dead || c.ligature) {
+            throw invalid_argument("invalid ligature character");
+        }
+        res.chars.push_back(c.unicode);
+    }
+
+    return res;
+}

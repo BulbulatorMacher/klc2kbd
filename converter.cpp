@@ -167,7 +167,7 @@ std::vector<uint8_t> Converter::generateKbd()
 
             for (size_t i = 0; i < l.charDefs.size(); ++i) {
                 const auto &cd = l.charDefs[i];
-                if (cd.undefined) {
+                if (cd.undefined || cd.ligature) {
                     continue;
                 }
 
@@ -250,6 +250,15 @@ std::vector<uint8_t> Converter::generateKbd()
             iss >> std::hex >> dkt.key;
             iss >> std::hex >> dkt.result;
             kbd.deadKeyTrans.push_back(dkt);
+        } else if (currentSection == "LIGATURE") {
+            const auto l = klc::readLigature(line);
+            kbd::Ligature lig;
+            lig.vkey = l.virtualKey;
+            lig.shiftState = toKbdShiftState(l.shiftState);
+            lig.chars = l.chars;
+            kbd.ligatures.push_back(lig);
+
+            kbd.ssKeys.at(lig.shiftState).addKey(lig.chars.at(0), lig.vkey);
         }
     }
 
