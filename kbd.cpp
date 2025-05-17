@@ -68,15 +68,16 @@ std::vector<uint8_t> Config::generateKbd() const
     flags |= DEADCOMBOS;
     KbdDataHeader << genWORD(flags);
 
-    KbdDataHeader << genWORD(4) << genWORD(shiftStateKeys.size() - 1);
+    const int nStateKeys = (flags & SHIFTLOCKUSED) ? 3 : 4;
+    KbdDataHeader << genWORD(nStateKeys) << genWORD(shiftStateKeys.size() - 1);
     KbdDataHeader << genWORD(deadKeys.size()) << genWORD(0); // todo LIG_KEYS
 
     // States
     KbdDataHeader << genWORD(KbdDataHeaderSize + KbdData.size());
-    KbdData << genBYTE(0x12) << genBYTE(0x80)
-            << genBYTE(0x10) << genBYTE(0x80)
-            << genBYTE(0x11) << genBYTE(0x80)
-            << genBYTE(0x14) << genBYTE(0x01);
+    for (int i = 0; i < nStateKeys; ++i) {
+        static const std::vector<uint8_t> sk{0x12, 0x80, 0x10, 0x80, 0x11, 0x80, 0x14, 0x01};
+        KbdData << genBYTE(sk[2 * i]) << genBYTE(sk[2 * i + 1]);
+    }
 
     // ToAscStates
     KbdDataHeader << genWORD(KbdDataHeaderSize + KbdData.size() + 1);

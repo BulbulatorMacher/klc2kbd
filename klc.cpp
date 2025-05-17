@@ -32,7 +32,7 @@ CharDef klc::readUnicode(const string &str)
     // printable ascii
     if (str.size() == 1) {
         const char c = str.front();
-        if ((c >= '1' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
+        if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z')) {
             res.unicode = c;
             return res;
         }

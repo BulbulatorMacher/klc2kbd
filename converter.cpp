@@ -98,7 +98,11 @@ std::vector<uint8_t> Converter::generateKbd()
             }
         }
 
-        if (currentSection == "SHIFTSTATE") {
+        if (currentSection == "ATTRIBUTES") {
+            if (line == "SHIFTLOCK") {
+                kbd.shiftLock = true;
+            }
+        } else if (currentSection == "SHIFTSTATE") {
             shiftStates.push_back(static_cast<klc::ShiftState>(std::stoi(line)));
             switch (shiftStates.back()) {
             case klc::ShiftState::NORM:
@@ -156,6 +160,8 @@ std::vector<uint8_t> Converter::generateKbd()
                     if (l2.charDefs[ssShiftIdx].dead) {
                         throw std::runtime_error("invalid dead key shift state, line: " + std::to_string(lineNo));
                     }
+                } else {
+                    kbd.ssKeys.at(kbd::ShiftState::CAPS_SHIFT).addKey(l2.charDefs[ssNormIdx].unicode, l.virtualKey);
                 }
             }
 
@@ -218,6 +224,21 @@ std::vector<uint8_t> Converter::generateKbd()
                         throw std::runtime_error("invalid dead key shift state, line: " + std::to_string(lineNo));
                     }
                     kbd.deadKeys.push_back(dk);
+
+                    // CAPS states officially are not supprted in the documentation, but are working in Win98
+                    if (shiftStates[i] == klc::ShiftState::NORM) {
+                        dk.shiftState = l.capIsShift ? kbd::ShiftState::CAPS_SHIFT : kbd::ShiftState::CAPS;
+                        kbd.deadKeys.push_back(dk);
+                    } else if (shiftStates[i] == klc::ShiftState::SHIFT) {
+                        dk.shiftState = l.capIsShift ? kbd::ShiftState::CAPS : kbd::ShiftState::CAPS_SHIFT;
+                        kbd.deadKeys.push_back(dk);
+                    } else if (shiftStates[i] == klc::ShiftState::ALTGR) {
+                        dk.shiftState = l.capIsShiftAltGr ? kbd::ShiftState::CAPS_ALTGR_SHIFT : kbd::ShiftState::CAPS_ALTGR;
+                        kbd.deadKeys.push_back(dk);
+                    } else if (shiftStates[i] == klc::ShiftState::SHIFT_ALTGR) {
+                        dk.shiftState = l.capIsShiftAltGr ? kbd::ShiftState::CAPS_ALTGR : kbd::ShiftState::CAPS_ALTGR_SHIFT;
+                        kbd.deadKeys.push_back(dk);
+                    }
                 }
             }
 
