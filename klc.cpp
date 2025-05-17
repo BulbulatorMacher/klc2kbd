@@ -14,6 +14,7 @@ CharDef klc::readUnicode(const string &str)
     }
 
     CharDef res;
+    res.undefined = false;
 
     // dead key
     if (str.back() == '@') {
@@ -125,3 +126,23 @@ const vector<string> klc::Sections = {
     "KEYNAME", "KEYNAME_EXT", "KEYNAME_DEAD",
     "DESCRIPTIONS", "LANGUAGENAMES", "ENDKBD",
 };
+
+bool klc::isSection(const string &keyword)
+{
+    return find(Sections.begin(), Sections.end(), keyword) != Sections.end();
+}
+
+string klc::trimmedLine(const string &line)
+{
+    string res = line;
+
+    const size_t commentPos = line.find("//");
+    if (commentPos != std::string::npos) {
+        res = res.substr(0, commentPos);
+    }
+
+    res.erase(0, res.find_first_not_of(" \n\r\t"));
+    res.erase(res.find_last_not_of(" \n\r\t") + 1);
+
+    return res;
+}

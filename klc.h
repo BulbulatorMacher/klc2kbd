@@ -7,9 +7,19 @@
 
 namespace klc
 {
+
+enum class ShiftState {
+    NORM        = 0,
+    SHIFT       = 1,
+    CTRL        = 2,
+    SHIFT_CTRL  = 3,
+    ALTGR       = 6,
+    SHIFT_ALTGR = 7
+};
+
 struct CharDef
 {
-    bool undefined = false;
+    bool undefined = true;
     uint16_t unicode = 0;
     bool dead = false;
     bool ligature = false;
@@ -31,6 +41,9 @@ struct LayoutLine
 LayoutLine readLayoutLine(const std::string &str);
 
 extern const std::vector<std::string> Sections;
+bool isSection(const std::string &keyword);
+
+std::string trimmedLine(const std::string &line);
 }
 
 #endif // KLC_H
