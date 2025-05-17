@@ -89,8 +89,6 @@ std::vector<uint8_t> Converter::generateKbd()
                     // todo
                 } else if (section == "DEADKEY") {
                     iss >> std::hex >> currentDeadKey;
-                } else {
-                    std::cout << "ignored section: " << section << std::endl;
                 }
 
                 // go to the next line
@@ -138,7 +136,7 @@ std::vector<uint8_t> Converter::generateKbd()
 
             if (l.sgcap) {
                 if (!std::getline(file, line)) {
-                    throw std::runtime_error("unexpected end of file");
+                    throw std::runtime_error("unexpected end of klc file");
                 }
                 ++lineNo;
 

@@ -89,7 +89,7 @@ uint8_t Codepage::code(uint16_t unicode) const
     }
 
     std::stringstream msg;
-    msg << "does not have a unicode: U+";
+    msg << "codepage does not have a unicode: U+";
     msg << std::setfill('0') << std::setw(4) << std::hex << unicode;
     throw std::runtime_error(msg.str());
 }
@@ -97,7 +97,7 @@ uint8_t Codepage::code(uint16_t unicode) const
 uint16_t Codepage::unicode(uint8_t code) const
 {
     if (!hasCode(code)) {
-        throw std::runtime_error("does not have a code");
+        throw std::runtime_error("codepage does not have a code");
     }
     return m_codes.find(code)->second;
 }
