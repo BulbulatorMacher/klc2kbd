@@ -44,8 +44,8 @@ Config::Config(const Codepage &codepage)
 std::vector<uint8_t> Config::generateKbd() const
 {
     const std::vector<std::reference_wrapper<const ShiftState>> shiftStates {
-        ssNormal, ssNormal, ssShift, ssShift, ssCtrl, ssCtrl, ssAltGr, ssAltGrShift,
-        ssCaps, ssCaps, ssCapsShift, ssCapsShift, ssCtrl, ssCtrl, ssCapsAltGr, ssCapsShift
+        ssNormal, ssNormal, ssShift, ssShift, ssCtrl, ssCtrlShift, ssAltGr, ssAltGrShift,
+        ssCaps, ssCaps, ssCapsShift, ssCapsShift, ssCtrl, ssCtrlShift, ssCapsAltGr, ssCapsShift
     };
 
     constexpr size_t HeaderBlockSize = 0x1C;
@@ -67,12 +67,16 @@ std::vector<uint8_t> Config::generateKbd() const
 
     // States
     KbdDataHeader << genWORD(KbdDataHeaderSize + KbdData.size());
-    KbdData << genBYTE(0x80) << genBYTE(0x80) << genBYTE(0x80) << genBYTE(0x01);
+    KbdData << genBYTE(0x12) << genBYTE(0x80)
+            << genBYTE(0x10) << genBYTE(0x80)
+            << genBYTE(0x11) << genBYTE(0x80)
+            << genBYTE(0x14) << genBYTE(0x01);
 
     // ToAscStates
     KbdDataHeader << genWORD(KbdDataHeaderSize + KbdData.size() + 1);
     for (size_t i = 0; i < shiftStates.size(); ++i) {
-        KbdData << genBYTE(i);
+        static const std::vector<uint8_t> ss{0, 1, 2, 3, 4, 6, 5, 7, 8, 9, 10, 11, 12, 14, 13, 15};
+        KbdData << genBYTE(ss[i]);
     }
 
     // ToAscStateTables, ToAscVkeyList, ToAscVKeyListLens

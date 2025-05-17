@@ -50,6 +50,7 @@ namespace kbd
         ShiftState ssCapsAltGr{ codepage };
         ShiftState ssCapsAltGrShift{ codepage };
         ShiftState ssCtrl{ codepage };
+        ShiftState ssCtrlShift{ codepage };
 
         std::vector<uint8_t> generateKbd() const;
     };
