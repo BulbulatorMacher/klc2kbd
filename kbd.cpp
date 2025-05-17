@@ -43,7 +43,7 @@ Config::Config(const Codepage &codepage)
 
 std::vector<uint8_t> Config::generateKbd() const
 {
-    const std::vector<std::reference_wrapper<const ShiftState>> shiftStates {
+    const std::vector<std::reference_wrapper<const ShiftStateKeys>> shiftStateKeys {
         ssNormal, ssNormal, ssShift, ssShift, ssCtrl, ssCtrlShift, ssAltGr, ssAltGrShift,
         ssCaps, ssCaps, ssCapsShift, ssCapsShift, ssCtrl, ssCtrlShift, ssCapsAltGr, ssCapsShift
     };
@@ -62,7 +62,7 @@ std::vector<uint8_t> Config::generateKbd() const
     flags |= DEADCOMBOS;
     KbdDataHeader << genWORD(flags);
 
-    KbdDataHeader << genWORD(4) << genWORD(shiftStates.size() - 1);
+    KbdDataHeader << genWORD(4) << genWORD(shiftStateKeys.size() - 1);
     KbdDataHeader << genWORD(deadKeys.size()) << genWORD(0); // todo LIG_KEYS
 
     // States
@@ -74,14 +74,14 @@ std::vector<uint8_t> Config::generateKbd() const
 
     // ToAscStates
     KbdDataHeader << genWORD(KbdDataHeaderSize + KbdData.size() + 1);
-    for (size_t i = 0; i < shiftStates.size(); ++i) {
+    for (size_t i = 0; i < shiftStateKeys.size(); ++i) {
         static const std::vector<uint8_t> ss{0, 1, 2, 3, 4, 6, 5, 7, 8, 9, 10, 11, 12, 14, 13, 15};
         KbdData << genBYTE(ss[i]);
     }
 
     // ToAscStateTables, ToAscVkeyList, ToAscVKeyListLens
     std::vector<uint8_t> ToAscStateTables, ToAscVkeyList, ToAscVKeyListLens;
-    for (const ShiftState &ss : shiftStates) {
+    for (const ShiftStateKeys &ss : shiftStateKeys) {
         ToAscStateTables << genWORD(KbdDataHeaderSize + KbdData.size());
         KbdData << ss.ascii();
         ToAscVkeyList << genWORD(KbdDataHeaderSize + KbdData.size());
@@ -97,7 +97,7 @@ std::vector<uint8_t> Config::generateKbd() const
 
     // VKShiftStates
     KbdDataHeader << genWORD(KbdDataHeaderSize + KbdData.size());
-    for (size_t i = 0; i < shiftStates.size(); ++i) {
+    for (size_t i = 0; i < shiftStateKeys.size(); ++i) {
         static const std::vector<uint8_t> ss{0, 0, 1, 1, 2, 3, 6, 7, 4, 4, 5, 5, 2, 3, 6, 7};
         KbdData << genBYTE(ss[i]);
     }
@@ -153,13 +153,13 @@ std::vector<uint8_t> Config::generateKbd() const
     return HeaderBlock << KbdDataHeader << KbdData;
 }
 
-ShiftState::ShiftState(const Codepage &codepage)
+ShiftStateKeys::ShiftStateKeys(const Codepage &codepage)
     : m_codepage(codepage)
 {
 
 }
 
-void ShiftState::addKey(uint16_t unicode, uint8_t vkey)
+void ShiftStateKeys::addKey(uint16_t unicode, uint8_t vkey)
 {
     if (std::find(m_vkeys.begin(), m_vkeys.end(), vkey) != m_vkeys.end()) {
         throw std::runtime_error("duplicate key");
@@ -169,12 +169,12 @@ void ShiftState::addKey(uint16_t unicode, uint8_t vkey)
     m_vkeys.push_back(vkey);
 }
 
-std::vector<uint8_t> ShiftState::ascii() const
+std::vector<uint8_t> ShiftStateKeys::ascii() const
 {
     return m_ascii;
 }
 
-std::vector<uint8_t> ShiftState::vkeys() const
+std::vector<uint8_t> ShiftStateKeys::vkeys() const
 {
     return m_vkeys;
 }

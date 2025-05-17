@@ -9,6 +9,26 @@
 #include <sstream>
 #include <stdexcept>
 
+static kbd::ShiftState toKbdShiftState(klc::ShiftState ss)
+{
+    switch (ss) {
+    case klc::ShiftState::NORM:
+        return kbd::ShiftState::NORM;
+    case klc::ShiftState::SHIFT:
+        return kbd::ShiftState::SHIFT;
+    case klc::ShiftState::CTRL:
+        return kbd::ShiftState::CTRL;
+    case klc::ShiftState::SHIFT_CTRL:
+        return kbd::ShiftState::CTRL_SHIFT;
+    case klc::ShiftState::ALTGR:
+        return kbd::ShiftState::ALTGR;
+    case klc::ShiftState::SHIFT_ALTGR:
+        return kbd::ShiftState::ALTGR_SHIFT;
+    default:
+        throw std::runtime_error("unknown shift state");
+    }
+}
+
 Converter::Converter(const Codepage &codepage, const std::string &klcFilename)
     : codepage(codepage)
     , klcFilename(klcFilename)
@@ -181,16 +201,10 @@ std::vector<uint8_t> Converter::generateKbd()
                     dk.vkey = l.virtualKey;
                     switch (shiftStates[i]) {
                     case klc::ShiftState::NORM:
-                        dk.shiftState = kbd::DeadKey::ShiftState::NORM;
-                        break;
                     case klc::ShiftState::SHIFT:
-                        dk.shiftState = kbd::DeadKey::ShiftState::SHIFT;
-                        break;
                     case klc::ShiftState::ALTGR:
-                        dk.shiftState = kbd::DeadKey::ShiftState::ALTGR;
-                        break;
                     case klc::ShiftState::SHIFT_ALTGR:
-                        dk.shiftState = kbd::DeadKey::ShiftState::ALTGRSHIFT;
+                        dk.shiftState = toKbdShiftState(shiftStates[i]);
                         break;
                     default:
                         throw std::runtime_error("invalid dead key shift state, line: " + std::to_string(lineNo));

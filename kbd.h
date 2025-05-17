@@ -9,6 +9,26 @@ class Codepage;
 
 namespace kbd
 {
+    enum class ShiftState {
+        NORM             = 0,
+        ALT              = 1,
+        SHIFT            = 2,
+        ALT_SHIFT        = 3,
+        CTRL             = 4,
+        CTRL_SHIFT       = 6,
+        ALTGR            = 5,
+        ALTGR_SHIFT      = 7,
+        CAPS             = 8,
+        CAPS_ALT         = 9,
+        CAPS_SHIFT       = 10,
+        CAPS_ALT_SHIFT   = 11,
+        CAPS_CTRL        = 12,
+        CAPS_CTRL_SHIFT  = 14,
+        CAPS_ALTGR       = 13,
+        CAPS_ALTGR_SHIFT = 15
+
+    };
+
     struct KeyDef {
         uint8_t scancode;
         uint8_t vkey;
@@ -16,13 +36,6 @@ namespace kbd
     };
 
     struct DeadKey {
-        enum class ShiftState {
-            NORM = 0,
-            SHIFT = 2,
-            ALTGR = 5,
-            ALTGRSHIFT = 7
-        };
-
         uint16_t   deadKey;
         uint8_t    vkey;
         ShiftState shiftState;
@@ -34,9 +47,9 @@ namespace kbd
         uint16_t result;
     };
 
-    class ShiftState {
+    class ShiftStateKeys {
     public:
-        ShiftState(const Codepage &codepage);
+        ShiftStateKeys(const Codepage &codepage);
         void addKey(uint16_t unicode, uint8_t vkey);
         std::vector<uint8_t> ascii() const;
         std::vector<uint8_t> vkeys() const;
@@ -60,16 +73,16 @@ namespace kbd
         std::vector<KeyDef> keys;
 
         // no Alt for now, hardcoded Caps, missing Ligature
-        ShiftState ssNormal{ codepage };
-        ShiftState ssShift{ codepage };
-        ShiftState ssAltGr{ codepage };
-        ShiftState ssAltGrShift{ codepage };
-        ShiftState ssCaps{ codepage };
-        ShiftState ssCapsShift{ codepage };
-        ShiftState ssCapsAltGr{ codepage };
-        ShiftState ssCapsAltGrShift{ codepage };
-        ShiftState ssCtrl{ codepage };
-        ShiftState ssCtrlShift{ codepage };
+        ShiftStateKeys ssNormal{ codepage };
+        ShiftStateKeys ssShift{ codepage };
+        ShiftStateKeys ssAltGr{ codepage };
+        ShiftStateKeys ssAltGrShift{ codepage };
+        ShiftStateKeys ssCaps{ codepage };
+        ShiftStateKeys ssCapsShift{ codepage };
+        ShiftStateKeys ssCapsAltGr{ codepage };
+        ShiftStateKeys ssCapsAltGrShift{ codepage };
+        ShiftStateKeys ssCtrl{ codepage };
+        ShiftStateKeys ssCtrlShift{ codepage };
 
         std::vector<DeadKey> deadKeys;
         std::vector<DeadKeyTrans> deadKeyTrans;
