@@ -2,6 +2,7 @@
 
 #include <fstream>
 #include <sstream>
+#include <vector>
 
 Codepage::Codepage(const std::string &filename)
 {
@@ -43,6 +44,24 @@ Codepage::Codepage(const std::string &filename)
         }
         m_codes.insert({code, unicode});
     }
+}
+
+Codepage Codepage::Win1252()
+{
+    Codepage cp;
+    for (int c = 0; c <= 0xFF; ++c) {
+        cp.m_codes.insert({c, c});
+    }
+    static const std::vector<uint16_t> ctr {
+        0x20AC, 0x0081, 0x201A, 0x0192, 0x201E, 0x2026, 0x2020, 0x2021,
+        0x02C6, 0x2030, 0x0160, 0x2039, 0x0152, 0x008D, 0x017D, 0x008F,
+        0x0090, 0x2018, 0x2019, 0x201C, 0x201D, 0x2022, 0x2013, 0x2014,
+        0x02DC, 0x2122, 0x0161, 0x203A, 0x0153, 0x009D, 0x017E, 0x0178
+    };
+    for (size_t i = 0; i < ctr.size(); ++i) {
+        cp.m_codes[i + 0x80] = ctr[i];
+    }
+    return cp;
 }
 
 bool Codepage::hasCode(uint8_t code) const

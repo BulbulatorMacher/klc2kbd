@@ -9,7 +9,7 @@ int main(int argc, char **argv)
         }
     }
 
-    Codepage cp(cpFilename);
+    const Codepage cp = cpFilename.empty() ? Codepage::Win1252() : Codepage(cpFilename);
 
     return 0;
 }

@@ -7,8 +7,11 @@
 
 class Codepage
 {
+private:
+    Codepage() = default;
 public:
     Codepage(const std::string &filename);
+    static Codepage Win1252();
 
     bool hasCode(uint8_t code) const;
     bool hasUnicode(uint16_t unicode) const;
