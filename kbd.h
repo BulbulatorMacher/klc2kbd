@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 class Codepage;
@@ -26,7 +27,6 @@ namespace kbd
         CAPS_CTRL_SHIFT  = 14,
         CAPS_ALTGR       = 13,
         CAPS_ALTGR_SHIFT = 15
-
     };
 
     struct KeyDef {
@@ -72,17 +72,18 @@ namespace kbd
 
         std::vector<KeyDef> keys;
 
-        // no Alt for now, hardcoded Caps, missing Ligature
-        ShiftStateKeys ssNormal{ codepage };
-        ShiftStateKeys ssShift{ codepage };
-        ShiftStateKeys ssAltGr{ codepage };
-        ShiftStateKeys ssAltGrShift{ codepage };
-        ShiftStateKeys ssCaps{ codepage };
-        ShiftStateKeys ssCapsShift{ codepage };
-        ShiftStateKeys ssCapsAltGr{ codepage };
-        ShiftStateKeys ssCapsAltGrShift{ codepage };
-        ShiftStateKeys ssCtrl{ codepage };
-        ShiftStateKeys ssCtrlShift{ codepage };
+        std::unordered_map<ShiftState, ShiftStateKeys> ssKeys {
+            {ShiftState::NORM,             {codepage}},
+            {ShiftState::SHIFT,            {codepage}},
+            {ShiftState::ALTGR,            {codepage}},
+            {ShiftState::ALTGR_SHIFT,      {codepage}},
+            {ShiftState::CAPS,             {codepage}},
+            {ShiftState::CAPS_SHIFT,       {codepage}},
+            {ShiftState::CAPS_ALTGR,       {codepage}},
+            {ShiftState::CAPS_ALTGR_SHIFT, {codepage}},
+            {ShiftState::CTRL,             {codepage}},
+            {ShiftState::CTRL_SHIFT,       {codepage}},
+        };
 
         std::vector<DeadKey> deadKeys;
         std::vector<DeadKeyTrans> deadKeyTrans;

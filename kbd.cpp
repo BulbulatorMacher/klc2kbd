@@ -44,8 +44,14 @@ Config::Config(const Codepage &codepage)
 std::vector<uint8_t> Config::generateKbd() const
 {
     const std::vector<std::reference_wrapper<const ShiftStateKeys>> shiftStateKeys {
-        ssNormal, ssNormal, ssShift, ssShift, ssCtrl, ssCtrlShift, ssAltGr, ssAltGrShift,
-        ssCaps, ssCaps, ssCapsShift, ssCapsShift, ssCtrl, ssCtrlShift, ssCapsAltGr, ssCapsShift
+        ssKeys.at(ShiftState::NORM),       ssKeys.at(ShiftState::NORM),
+        ssKeys.at(ShiftState::SHIFT),      ssKeys.at(ShiftState::SHIFT),
+        ssKeys.at(ShiftState::CTRL),       ssKeys.at(ShiftState::CTRL_SHIFT),
+        ssKeys.at(ShiftState::ALTGR),      ssKeys.at(ShiftState::ALTGR_SHIFT),
+        ssKeys.at(ShiftState::CAPS),       ssKeys.at(ShiftState::CAPS),
+        ssKeys.at(ShiftState::CAPS_SHIFT), ssKeys.at(ShiftState::CAPS_SHIFT),
+        ssKeys.at(ShiftState::CTRL),       ssKeys.at(ShiftState::CTRL_SHIFT),
+        ssKeys.at(ShiftState::CAPS_ALTGR), ssKeys.at(ShiftState::CAPS_ALTGR_SHIFT),
     };
 
     constexpr size_t HeaderBlockSize = 0x1C;

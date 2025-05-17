@@ -146,13 +146,13 @@ std::vector<uint8_t> Converter::generateKbd()
                 }
 
                 if (!l2.charDefs[ssNormIdx].undefined) {
-                    kbd.ssCaps.addKey(l2.charDefs[ssNormIdx].unicode, l.virtualKey);
+                    kbd.ssKeys.at(kbd::ShiftState::CAPS).addKey(l2.charDefs[ssNormIdx].unicode, l.virtualKey);
                     if (l2.charDefs[ssNormIdx].dead) {
                         throw std::runtime_error("invalid dead key shift state, line: " + std::to_string(lineNo));
                     }
                 }
                 if (l2.charDefs.size() == 2 && !l2.charDefs[ssShiftIdx].undefined) {
-                    kbd.ssCapsShift.addKey(l2.charDefs[ssShiftIdx].unicode, l.virtualKey);
+                    kbd.ssKeys.at(kbd::ShiftState::CAPS_SHIFT).addKey(l2.charDefs[ssShiftIdx].unicode, l.virtualKey);
                     if (l2.charDefs[ssShiftIdx].dead) {
                         throw std::runtime_error("invalid dead key shift state, line: " + std::to_string(lineNo));
                     }
@@ -167,31 +167,39 @@ std::vector<uint8_t> Converter::generateKbd()
 
                 switch (shiftStates[i]) {
                 case klc::ShiftState::NORM:
-                    kbd.ssNormal.addKey(cd.unicode, l.virtualKey);
+                    kbd.ssKeys.at(kbd::ShiftState::NORM).addKey(cd.unicode, l.virtualKey);
                     if (!l.sgcap) {
-                        (l.capIsShift ? kbd.ssCapsShift : kbd.ssCaps).addKey(cd.unicode, l.virtualKey);
+                        kbd.ssKeys
+                                .at(l.capIsShift ? kbd::ShiftState::CAPS_SHIFT : kbd::ShiftState::CAPS)
+                                .addKey(cd.unicode, l.virtualKey);
                     }
                     break;
                 case klc::ShiftState::SHIFT:
-                    kbd.ssShift.addKey(cd.unicode, l.virtualKey);
+                    kbd.ssKeys.at(kbd::ShiftState::SHIFT).addKey(cd.unicode, l.virtualKey);
                     if (!l.sgcap) {
-                        (l.capIsShift ? kbd.ssCaps : kbd.ssCapsShift).addKey(cd.unicode, l.virtualKey);
+                        kbd.ssKeys
+                                .at(l.capIsShift ? kbd::ShiftState::CAPS : kbd::ShiftState::CAPS_SHIFT)
+                                .addKey(cd.unicode, l.virtualKey);
                     }
                     break;
                     continue;
                 case klc::ShiftState::CTRL:
-                    kbd.ssCtrl.addKey(cd.unicode, l.virtualKey);
+                    kbd.ssKeys.at(kbd::ShiftState::CTRL).addKey(cd.unicode, l.virtualKey);
                     break;
                 case klc::ShiftState::SHIFT_CTRL:
-                    kbd.ssCtrlShift.addKey(cd.unicode, l.virtualKey);
+                    kbd.ssKeys.at(kbd::ShiftState::CTRL_SHIFT).addKey(cd.unicode, l.virtualKey);
                     break;
                 case klc::ShiftState::ALTGR:
-                    kbd.ssAltGr.addKey(cd.unicode, l.virtualKey);
-                    (l.capIsShiftAltGr ? kbd.ssCapsAltGrShift : kbd.ssCapsAltGr).addKey(cd.unicode, l.virtualKey);
+                    kbd.ssKeys.at(kbd::ShiftState::ALTGR).addKey(cd.unicode, l.virtualKey);
+                    kbd.ssKeys
+                            .at(l.capIsShiftAltGr ? kbd::ShiftState::CAPS_ALTGR_SHIFT : kbd::ShiftState::CAPS_ALTGR)
+                            .addKey(cd.unicode, l.virtualKey);
                     break;
                 case klc::ShiftState::SHIFT_ALTGR:
-                    kbd.ssAltGrShift.addKey(cd.unicode, l.virtualKey);
-                    (l.capIsShiftAltGr ? kbd.ssCapsAltGr : kbd.ssCapsAltGrShift).addKey(cd.unicode, l.virtualKey);
+                    kbd.ssKeys.at(kbd::ShiftState::ALTGR_SHIFT).addKey(cd.unicode, l.virtualKey);
+                    kbd.ssKeys
+                            .at(l.capIsShiftAltGr ? kbd::ShiftState::CAPS_ALTGR : kbd::ShiftState::CAPS_ALTGR_SHIFT)
+                            .addKey(cd.unicode, l.virtualKey);
                     break;
                 }
 
