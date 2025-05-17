@@ -15,6 +15,25 @@ namespace kbd
         uint16_t ascii;
     };
 
+    struct DeadKey {
+        enum class ShiftState {
+            NORM = 0,
+            SHIFT = 2,
+            ALTGR = 5,
+            ALTGRSHIFT = 7
+        };
+
+        uint16_t   deadKey;
+        uint8_t    vkey;
+        ShiftState shiftState;
+    };
+
+    struct DeadKeyTrans {
+        uint16_t deadKey;
+        uint16_t key;
+        uint16_t result;
+    };
+
     class ShiftState {
     public:
         ShiftState(const Codepage &codepage);
@@ -40,7 +59,7 @@ namespace kbd
 
         std::vector<KeyDef> keys;
 
-        // no Alt for now, hardcoded Caps, missing Dead and Ligature
+        // no Alt for now, hardcoded Caps, missing Ligature
         ShiftState ssNormal{ codepage };
         ShiftState ssShift{ codepage };
         ShiftState ssAltGr{ codepage };
@@ -51,6 +70,9 @@ namespace kbd
         ShiftState ssCapsAltGrShift{ codepage };
         ShiftState ssCtrl{ codepage };
         ShiftState ssCtrlShift{ codepage };
+
+        std::vector<DeadKey> deadKeys;
+        std::vector<DeadKeyTrans> deadKeyTrans;
 
         std::vector<uint8_t> generateKbd() const;
     };

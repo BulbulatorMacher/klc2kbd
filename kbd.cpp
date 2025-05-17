@@ -63,7 +63,7 @@ std::vector<uint8_t> Config::generateKbd() const
     KbdDataHeader << genWORD(flags);
 
     KbdDataHeader << genWORD(4) << genWORD(shiftStates.size() - 1);
-    KbdDataHeader << genWORD(0) << genWORD(0); // todo DEAD_KEYS, LIG_KEYS
+    KbdDataHeader << genWORD(deadKeys.size()) << genWORD(0); // todo LIG_KEYS
 
     // States
     KbdDataHeader << genWORD(KbdDataHeaderSize + KbdData.size());
@@ -117,8 +117,26 @@ std::vector<uint8_t> Config::generateKbd() const
     KbdDataHeader << genWORD(KbdDataHeaderSize + KbdData.size());
     KbdData << VKeyToAnsi;
 
-    // DeadKeyTable, DeadTrans, LigKeys, CapsBits
-    KbdDataHeader << genWORD(0) << genWORD(0) << genWORD(0) << genWORD(0);
+    // DeadKeyTable
+    KbdDataHeader << genWORD(KbdDataHeaderSize + KbdData.size());
+    for (auto dk : deadKeys) {
+        KbdData << genBYTE(codepage.code(dk.deadKey));
+        if (flags & DEADCOMBOS) {
+            KbdData << genBYTE(dk.vkey) << genBYTE((int)dk.shiftState) << genBYTE(0);
+        }
+    }
+    // DeadTrans
+    KbdDataHeader << genWORD(KbdDataHeaderSize + KbdData.size());
+    KbdData << genWORD(deadKeyTrans.size());
+    for (auto dkt : deadKeyTrans) {
+        KbdData << genBYTE(codepage.code(dkt.deadKey)) << genBYTE(codepage.code(dkt.key));
+    }
+    for (auto dkt : deadKeyTrans) {
+        KbdData << genBYTE(codepage.code(dkt.result));
+    }
+
+    // LigKeys, CapsBits
+    KbdDataHeader << genWORD(0) << genWORD(0);
 
     HeaderBlock << genBYTE('D') << genBYTE('S');
     HeaderBlock << genDWORD(localeId) << genWORD(version);

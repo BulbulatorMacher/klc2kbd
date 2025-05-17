@@ -26,6 +26,7 @@ std::vector<uint8_t> Converter::generateKbd() const
     std::string line;
     int lineNo = 0;
     std::string currentSection;
+    uint16_t currentDeadKey = 0x0000;
 
     std::vector<klc::ShiftState> shiftStates;
     int ssNormIdx = -1;
@@ -61,6 +62,8 @@ std::vector<uint8_t> Converter::generateKbd() const
                     std::istringstream(locIdHexStr) >> std::hex >> kbd.localeId;
                 } else if (section == "VERSION") {
                     // todo
+                } else if (section == "DEADKEY") {
+                    iss >> std::hex >> currentDeadKey;
                 } else {
                     std::cout << "ignored section: " << section << std::endl;
                 }
@@ -120,9 +123,15 @@ std::vector<uint8_t> Converter::generateKbd() const
 
                 if (!l2.charDefs[ssNormIdx].undefined) {
                     kbd.ssCaps.addKey(l2.charDefs[ssNormIdx].unicode, l.virtualKey);
+                    if (l2.charDefs[ssNormIdx].dead) {
+                        throw std::runtime_error("invalid dead key shift state, line: " + std::to_string(lineNo));
+                    }
                 }
                 if (l2.charDefs.size() == 2 && !l2.charDefs[ssShiftIdx].undefined) {
                     kbd.ssCapsShift.addKey(l2.charDefs[ssShiftIdx].unicode, l.virtualKey);
+                    if (l2.charDefs[ssShiftIdx].dead) {
+                        throw std::runtime_error("invalid dead key shift state, line: " + std::to_string(lineNo));
+                    }
                 }
             }
 
@@ -161,9 +170,39 @@ std::vector<uint8_t> Converter::generateKbd() const
                     (l.capIsShiftAltGr ? kbd.ssCapsAltGr : kbd.ssCapsAltGrShift).addKey(cd.unicode, l.virtualKey);
                     break;
                 }
+
+                if (cd.dead) {
+                    kbd::DeadKey dk;
+                    dk.deadKey = cd.unicode;
+                    dk.vkey = l.virtualKey;
+                    switch (shiftStates[i]) {
+                    case klc::ShiftState::NORM:
+                        dk.shiftState = kbd::DeadKey::ShiftState::NORM;
+                        break;
+                    case klc::ShiftState::SHIFT:
+                        dk.shiftState = kbd::DeadKey::ShiftState::SHIFT;
+                        break;
+                    case klc::ShiftState::ALTGR:
+                        dk.shiftState = kbd::DeadKey::ShiftState::ALTGR;
+                        break;
+                    case klc::ShiftState::SHIFT_ALTGR:
+                        dk.shiftState = kbd::DeadKey::ShiftState::ALTGRSHIFT;
+                        break;
+                    default:
+                        throw std::runtime_error("invalid dead key shift state, line: " + std::to_string(lineNo));
+                    }
+                    kbd.deadKeys.push_back(dk);
+                }
             }
 
             kbd.keys.push_back({(uint8_t)l.scanCode, (uint8_t)l.virtualKey, l.charDefs[l.capIsShift ? ssShiftIdx : ssNormIdx].unicode});
+        } else if (currentSection == "DEADKEY") {
+            std::istringstream iss(line);
+            kbd::DeadKeyTrans dkt;
+            dkt.deadKey = currentDeadKey;
+            iss >> std::hex >> dkt.key;
+            iss >> std::hex >> dkt.result;
+            kbd.deadKeyTrans.push_back(dkt);
         }
     }
 
