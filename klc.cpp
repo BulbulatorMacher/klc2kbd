@@ -146,3 +146,13 @@ string klc::trimmedLine(const string &line)
 
     return res;
 }
+
+string klc::stripQuotes(const string &text)
+{
+    string res = text;
+    if (res.find_first_of('"') == 0)
+        res = res.substr(1);
+    if (res.find_last_of('"') == res.size() - 1)
+        res = res.substr(0, res.size() - 1);
+    return res;
+}

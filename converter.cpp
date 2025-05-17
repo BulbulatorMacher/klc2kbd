@@ -16,8 +16,10 @@ Converter::Converter(const Codepage &codepage, const std::string &klcFilename)
 
 }
 
-std::vector<uint8_t> Converter::generateKbd() const
+std::vector<uint8_t> Converter::generateKbd()
 {
+    m_generated = false;
+
     kbd::Config kbd(codepage);
 
     const std::string fileData = utf::toAscii(klcFilename, codepage);
@@ -55,11 +57,14 @@ std::vector<uint8_t> Converter::generateKbd() const
                 if (section == "ENDKBD") {
                     // stop parsing
                     break;
+                } else if (section == "KBD") {
+                    iss >> m_name >> m_description;
+                    m_description = klc::stripQuotes(m_description);
                 } else if (section == "LOCALEID") {
                     std::string locIdQuot;
                     iss >> locIdQuot;
-                    auto locIdHexStr = locIdQuot.substr(1, locIdQuot.size() - 1);
-                    std::istringstream(locIdHexStr) >> std::hex >> kbd.localeId;
+                    std::istringstream(klc::stripQuotes(locIdQuot)) >> std::hex >> m_localeId;
+                    kbd.localeId = m_localeId;
                 } else if (section == "VERSION") {
                     // todo
                 } else if (section == "DEADKEY") {
@@ -67,7 +72,6 @@ std::vector<uint8_t> Converter::generateKbd() const
                 } else {
                     std::cout << "ignored section: " << section << std::endl;
                 }
-
 
                 // go to the next line
                 continue;
@@ -206,5 +210,30 @@ std::vector<uint8_t> Converter::generateKbd() const
         }
     }
 
+    m_generated = true;
     return kbd.generateKbd();
+}
+
+std::string Converter::name() const
+{
+    if (!m_generated) {
+        throw std::runtime_error("kbd not generated");
+    }
+    return m_name;
+}
+
+std::string Converter::description() const
+{
+    if (!m_generated) {
+        throw std::runtime_error("kbd not generated");
+    }
+    return m_description;
+}
+
+uint32_t Converter::localeId() const
+{
+    if (!m_generated) {
+        throw std::runtime_error("kbd not generated");
+    }
+    return m_localeId;
 }

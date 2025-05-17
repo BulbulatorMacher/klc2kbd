@@ -44,6 +44,7 @@ extern const std::vector<std::string> Sections;
 bool isSection(const std::string &keyword);
 
 std::string trimmedLine(const std::string &line);
+std::string stripQuotes(const std::string &text);
 }
 
 #endif // KLC_H
