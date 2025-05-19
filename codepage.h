@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2025 BulbulatorMacher
+ * Subject to GPL 2.0 license
+ * Part of klc2kbd
+ */
+
 #ifndef CODEPAGE_H
 #define CODEPAGE_H
 

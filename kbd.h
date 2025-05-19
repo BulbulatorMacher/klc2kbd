@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2025 BulbulatorMacher
+ * Subject to GPL 2.0 license
+ * Part of klc2kbd
+ */
+
 #ifndef KBD_H
 #define KBD_H
 

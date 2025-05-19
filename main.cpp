@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2025 BulbulatorMacher
+ * Subject to GPL 2.0 license
+ * Part of klc2kbd
+ */
+
 #include "codepage.h"
 #include "converter.h"
 
@@ -6,6 +12,10 @@
 
 int main(int argc, char **argv)
 {
+    std::cout << "Copyright (c) 2025 BulbulatorMacher" << std::endl;
+    std::cout << "Subject to GPL 2.0 license" << std::endl;
+    std::cout << "Part of klc2kbd" << std::endl << std::endl;
+
     std::string cpFilename;
     for (int i = 0; i < argc; ++i) {
         if ((std::string(argv[i]) == "--cp") && ((i + 1) < argc)) {
