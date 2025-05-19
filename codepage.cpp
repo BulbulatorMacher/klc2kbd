@@ -103,7 +103,10 @@ uint8_t Codepage::code(uint16_t unicode) const
 uint16_t Codepage::unicode(uint8_t code) const
 {
     if (!hasCode(code)) {
-        throw std::runtime_error("codepage does not have a code");
+        std::stringstream msg;
+        msg << "codepage does not have a code point: 0x";
+        msg << std::setfill('0') << std::setw(2) << std::hex << code;
+        throw std::runtime_error(msg.str());
     }
     return m_codes.find(code)->second;
 }
